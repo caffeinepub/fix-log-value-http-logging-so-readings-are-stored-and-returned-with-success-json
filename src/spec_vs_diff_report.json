@@ -1,28 +1,26 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:17:52.986Z",
-  "summary": "No explicit requirements or acceptance criteria were provided in the BuildRequest. The diff modifies the Motoko backend to add a readings data model and related endpoints, and updates project_state.json metadata.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-05T22:28:29.159Z",
+  "summary": "Implemented a new runtime configuration resolver with a fallback chain (build-time env → window global → sessionStorage cache → /env.json) and updated HttpLoggingInstructionsCard to use it with improved English error messaging and a hard refresh action. Added a static public env.json and a hint in index.html for injecting window.CANISTER_ID_BACKEND. However, the diff does not demonstrate that the production build/redeploy will expose the *correct deployed* backend canister ID (env.json currently contains an empty value).",
+  "missing_requirements": [
     {
-      "description": "Implemented sensor/telemetry-style readings storage with add/get endpoints (Reading/ReadingDTO, addReading, getAllReadings, getLatestReading, DataResponse builders).",
-      "reason": "BuildRequest specifies no requirements; these backend features are newly introduced without a corresponding request.",
+      "id": "REQ-2",
+      "requirement": "Ensure the production build/redeploy correctly embeds or exposes the deployed backend canister ID to the frontend at runtime (matching the actually deployed production backend canister), and if /env.json remains used, it should return 200 with the expected backend canister ID content.",
+      "reason": "The added frontend/public/env.json exists but sets \"CANISTER_ID_BACKEND\" to an empty string, and there is no evidence in the diff of injecting or embedding the real deployed production canister ID into the production artifact/runtime configuration.",
       "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Added/updated project_state.json flags and notes (e.g., isFixRequest=true, frontend canister ID linking notes).",
-      "reason": "No requirements were provided that requested project state metadata changes or frontend linking guidance.",
-      "evidence": [
-        "project_state.json"
+        "frontend/public/env.json"
       ]
     }
   ],
+  "hallucinated_features": [],
   "confidence": 0.74,
   "changed_files": [
-    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/index.html",
+    "frontend/public/env.json",
+    "frontend/src/components/HttpLoggingInstructionsCard.tsx",
+    "frontend/src/lib/runtimeConfig.ts",
     "project_state.json"
   ]
 }

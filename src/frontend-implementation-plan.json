@@ -1,6 +1,86 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Untitled request",
-  "requirements": []
+  "title": "Harden frontend backend-canister configuration resolution (no /env.json dependency)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Make frontend runtime configuration loading robust so backend canister ID resolves in production even if /env.json is unavailable, using a clear fallback chain.",
+      "acceptanceCriteria": [
+        "Loading the production site no longer depends on successfully fetching `/env.json`; if `/env.json` is unavailable, the app still resolves the backend canister ID via fallback(s).",
+        "The browser console no longer logs `CANISTER_ID_BACKEND is not set` during normal page load in production.",
+        "`HttpLoggingInstructionsCard` shows a non-empty Backend Canister ID and non-empty API URLs when the backend is deployed.",
+        "When visiting the production app and then opening a constructed raw URL like `https://<backendCanisterId>.raw.icp0.io/log?value=2.1`, it succeeds (no missing-canister-ID blocker from the frontend)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/runtimeConfig.ts",
+          "operation": "create",
+          "description": "Add a single runtime-config resolver that determines the backend canister ID via a robust fallback chain: (1) build-time env values (`import.meta.env.VITE_CANISTER_ID_BACKEND` / `import.meta.env.CANISTER_ID_BACKEND`), (2) optional `window.CANISTER_ID_BACKEND`, (3) best-effort fetch of `/env.json` (with timeout and non-fatal failure handling), and (4) optional lightweight caching (e.g., sessionStorage) to avoid repeated fetch attempts. Ensure it never returns an empty value solely because `/env.json` is 503/unavailable."
+        },
+        {
+          "path": "frontend/src/config.ts",
+          "operation": "modify",
+          "description": "Update the core-infrastructure configuration/actor bootstrap to use the new runtime-config resolver for the backend canister ID (prefer build-time/window values; only use `/env.json` when available). Ensure config loading does not hard-fail due to `/env.json` fetch errors. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Adjust actor creation flow to obtain the backend canister ID through the shared runtime-config resolver before calling into the core-infrastructure actor creation helper. Ensure the app does not end up in a `CANISTER_ID_BACKEND is not set` state when build-time/window values are present but `/env.json` is down (avoid throwing purely due to `/env.json` failure). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/HttpLoggingInstructionsCard.tsx",
+          "operation": "modify",
+          "description": "Replace direct `import.meta.env`/`window` access with the shared runtime-config resolver so the card consistently displays the resolved backend canister ID and derived raw API URLs, even when `/env.json` is unavailable. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Ensure the production frontend build has a reliable way to obtain the correct deployed backend canister ID at runtime without showing a missing-backend alert.",
+      "acceptanceCriteria": [
+        "After redeploy, the production UI no longer shows the \"Backend canister ID not found. Please ensure the backend is deployed.\" alert under normal conditions.",
+        "The backend canister ID used by the frontend matches the actually deployed backend canister for the production environment.",
+        "If `/env.json` remains part of the runtime path, requesting it in production returns HTTP 200 (not 503) and includes the backend canister ID value expected by the frontend."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/env.json",
+          "operation": "create",
+          "description": "Add a static `env.json` fallback asset (served from the frontend) containing the backend canister ID mapping expected by the runtime-config resolver. Document within the file (as JSON fields/structure supported by the resolver) what key is read for the backend canister ID so production hosting can serve a valid 200 response when needed."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Add an optional, non-breaking runtime configuration hook for production (e.g., ability to set `window.CANISTER_ID_BACKEND` via an inline script that reads a simple global injected by the hosting environment). Ensure this does not introduce a hard dependency on any network request and remains compatible with the runtime-config fallback chain."
+        },
+        {
+          "path": "frontend/src/lib/runtimeConfig.ts",
+          "operation": "modify",
+          "description": "Ensure `/env.json` parsing supports the `frontend/public/env.json` structure and is resilient to hosting differences (correct origin-relative path resolution, graceful handling of 503/invalid JSON). Prioritize build-time and `window` values over network-loaded config."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Improve user-facing diagnostics in HttpLoggingInstructionsCard when the backend canister ID cannot be resolved, with an actionable configuration-loading message.",
+      "acceptanceCriteria": [
+        "When no backend canister ID is available, the UI message is in English and references a configuration/loading issue rather than implying the backend is necessarily not deployed.",
+        "The diagnostics message is concise and does not include stack traces or internal implementation details.",
+        "When the backend canister ID is available, the diagnostics message is not shown."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/HttpLoggingInstructionsCard.tsx",
+          "operation": "modify",
+          "description": "Update the empty-backend-canister-ID UI state to show a concise, actionable English message indicating a configuration loading failure (e.g., unable to load runtime configuration), recommending a single step (hard refresh), plus a brief note to redeploy if it persists; do not show stack traces. Ensure the alert only appears when the resolver cannot determine the canister ID."
+        },
+        {
+          "path": "frontend/src/lib/runtimeConfig.ts",
+          "operation": "modify",
+          "description": "Expose a minimal diagnostic status from the resolver (e.g., resolved source: build-time/window/env.json/none and a boolean indicating config-load attempted/failed) so the UI can tailor messaging without revealing internal errors or stack traces."
+        }
+      ]
+    }
+  ]
 }

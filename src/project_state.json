@@ -3,15 +3,40 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [
-    "Frontend must be configured/rebuilt to link to deployed backend canister ID(s) so it can locate the backend at runtime."
+    "Frontend loads backend canister ID/config from /env.json; if env.json fails to load, CANISTER_ID_BACKEND is unset and the app shows 'Backend canister ID not found'."
   ],
   "known_issues": [
-    "Frontend error: \"Backend canister ID not found\" indicates missing/mislinked backend canister ID configuration; requires rebuild/relink."
+    "Production frontend GET /env.json returns 503, causing CANISTER_ID_BACKEND not set and 'Backend canister ID not found. Please ensure the backend is deployed.' error."
   ],
   "isFixRequest": true,
-  "existing_features": [],
+  "existing_features": [
+    {
+      "id": "feature-fix-the-frontend-runtime-configuration-loading-so-the-app-can-always-resolve-the-backend-canister-id-in-production-even-when-get-env-json-fails-503-implement-a-robust-fallback-chain-that-prefers-build-time-values-e-g-import-meta-env-vite-canister-id-backend-import-meta-env-canister-id-backend-and-optional-window-canister-id-backend-and-only-uses-env-json-when-available-the-app-must-not-end-up-in-a-state-where-canister-id-backend-is-not-set-solely-because-env-json-is-unavailable",
+      "title": "Fix the frontend runtime configuration loading so the app can always resolve the backend canister ID in production even when `GET /env.json` fails (503). Implement a robust fallback chain that prefers build-time values (e.g., `import.meta.env.VITE_CANISTER_ID_BACKEND` / `import.meta.env.CANISTER_ID_BACKEND`) and optional `window.CANISTER_ID_BACKEND`, and only uses `/env.json` when available; the app must not end up in a state where `CANISTER_ID_BACKEND is not set` solely because `/env.json` is unavailable.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-production-build-redeploy-correctly-embeds-or-exposes-the-deployed-backend-canister-id-to-the-frontend-at-runtime-so-the-ui-does-not-show-backend-canister-id-not-found-please-ensure-the-backend-is-deployed-this-includes-verifying-that-the-production-artifact-contains-the-correct-canister-id-mapping-and-that-the-hosting-path-used-by-the-frontend-to-obtain-configuration-is-available-either-by-making-env-json-return-200-with-the-expected-content-or-by-eliminating-the-need-for-env-json-via-req-1-s-fallback-mechanism",
+      "title": "Ensure the production build/redeploy correctly embeds or exposes the deployed backend canister ID to the frontend at runtime (so the UI does not show: \"Backend canister ID not found. Please ensure the backend is deployed.\"). This includes verifying that the production artifact contains the correct canister ID mapping and that the hosting path used by the frontend to obtain configuration is available (either by making `/env.json` return 200 with the expected content, or by eliminating the need for `/env.json` via REQ-1’s fallback mechanism).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-user-facing-diagnostics-for-configuration-failures-when-the-backend-canister-id-cannot-be-resolved-update-the-ui-state-in-httplogginginstructionscard-to-display-a-more-actionable-english-error-that-mentions-configuration-loading-failure-e-g-inability-to-load-runtime-config-and-provides-a-single-recommended-step-hard-refresh-plus-a-short-note-to-redeploy-if-it-persists-without-exposing-stack-traces",
+      "title": "Improve user-facing diagnostics for configuration failures: when the backend canister ID cannot be resolved, update the UI state (in `HttpLoggingInstructionsCard`) to display a more actionable English error that mentions configuration loading failure (e.g., inability to load runtime config) and provides a single recommended step (hard refresh) plus a short note to redeploy if it persists, without exposing stack traces.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    }
+  ],
   "new_feature_requests": [],
-  "projectName": "Untitled request",
+  "projectName": "Fix production CANISTER_ID_BACKEND/env.json configuration and redeploy",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
