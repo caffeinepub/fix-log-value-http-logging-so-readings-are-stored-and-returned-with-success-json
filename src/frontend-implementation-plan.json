@@ -1,0 +1,42 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Fix frontend HTTP logging instruction URLs to target backend JSON canister",
+  "requirements": [
+    {
+      "id": "REQ-33",
+      "summary": "Update the HTTP instructions card to show copyable URLs that target the backend canister HTTP JSON base, while preserving the known HTML-returning caffeine.xyz reference URL verbatim.",
+      "acceptanceCriteria": [
+        "The instructions card shows copyable URLs that resolve to backend JSON endpoints (not the frontend HTML)",
+        "The UI still displays the exact reference URL `https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/log?value=2.1` verbatim and labels it in English as a known non-JSON (HTML) reference"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/HttpLoggingInstructionsCard.tsx",
+          "operation": "modify",
+          "description": "Replace the currently hard-coded caffeine.xyz base URL used for the primary/copyable “Log a Reading” and “Retrieve All Readings” URLs with a backend-canister HTTP base URL that serves JSON. Preserve and display the exact caffeine.xyz reference URL `https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/log?value=2.1` as a clearly-labeled English note indicating it is a known non-JSON (HTML) reference. Use the core-infrastructure component’s backend connection configuration capability to derive the correct backend canister HTTP base URL (rather than the frontend/asset canister URL). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "summary": "Ensure the deployed app flow clearly supports verifying that HTTP logging persists and appears in the readings table after the next polling refresh, using the corrected backend JSON URLs.",
+      "acceptanceCriteria": [
+        "In production, calling the backend JSON endpoints for logging and fetching readings returns JSON, not the React app HTML",
+        "After calling GET `/log?value=...`, the new reading appears in the frontend readings table after polling refresh"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add lightweight UI affordances to support end-to-end verification of the HTTP JSON flow without introducing new routes: include a visible manual “Refresh readings” control near the readings table that triggers a React Query refetch for readings/latest, and a small note near the HTTP instructions reminding that new readings created via HTTP `/log?value=...` should appear after the next polling refresh. Keep the existing polling-based approach intact."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Ensure the existing polling queries are easy to manually refresh from the UI by exposing/refactoring query keys/utilities in a way that allows App.tsx to reliably trigger refetch/invalidation for both the all-readings and latest-reading queries after an external HTTP log call (while keeping the 3-second polling behavior)."
+        }
+      ]
+    }
+  ]
+}

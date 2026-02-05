@@ -1,0 +1,108 @@
+{
+  "kind": "build_request",
+  "title": "Restore backend HTTP JSON endpoints with CORS and fix frontend logging instruction URLs",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-30",
+      "text": "Implement (or restore) a Motoko `http_request` handler in `backend/main.mo` so the backend canister directly serves HTTP JSON responses (not the React app HTML) for GET `/log?value=...` (append a new numeric reading) and GET `/data` (return all readings). Responses must include `Content-Type: application/json`.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "build"
+        ]
+      },
+      "acceptanceCriteria": [
+        "GET `/log?value=2.1` returns a JSON response with `Content-Type: application/json` and appends a new reading in backend state",
+        "GET `/data` returns JSON (not HTML) with `Content-Type: application/json` containing all readings",
+        "None of these endpoints return the frontend HTML asset page"
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "text": "Add an additional GET route alias `/readings` in the backend `http_request` handler that returns the exact same JSON payload as `/data` (same shape, fields, and `Content-Type`).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "build"
+        ]
+      },
+      "acceptanceCriteria": [
+        "GET `/readings` returns the same JSON payload as GET `/data` (byte-for-byte identical JSON is acceptable but not required; payload shape and fields must match)",
+        "GET `/readings` returns `Content-Type: application/json` and not HTML"
+      ]
+    },
+    {
+      "id": "REQ-32",
+      "text": "Ensure correct CORS handling in the backend `http_request` handler for `/log`, `/data`, and `/readings`, including responding to `OPTIONS` preflight requests, so these endpoints can be called from browsers on caffeine.xyz (including draft and production origins) and from tools like curl.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "build"
+        ]
+      },
+      "acceptanceCriteria": [
+        "For GET requests to `/log`, `/data`, and `/readings`, responses include appropriate CORS headers so browser calls from caffeine.xyz origins succeed",
+        "For OPTIONS requests to `/log`, `/data`, and `/readings`, the canister returns a successful preflight response with appropriate CORS headers",
+        "Calls using curl without an Origin header still succeed and return JSON"
+      ]
+    },
+    {
+      "id": "REQ-33",
+      "text": "Update `frontend/src/components/HttpLoggingInstructionsCard.tsx` so the displayed/copyable “Log a Reading” and “Retrieve All Readings” URLs point to the backend canister’s HTTP base URL that actually serves JSON (the backend canister, not the frontend/asset canister URL). Preserve and still display the exact user-provided caffeine.xyz URL `https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/log?value=2.1` in the UI as a reference URL that is known to return the frontend/HTML (non-JSON) in production.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "build"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The instructions card shows copyable URLs that resolve to backend JSON endpoints (not the frontend HTML)",
+        "The UI still displays the exact reference URL `https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/log?value=2.1` verbatim and labels it in English as a known non-JSON (HTML) reference"
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "text": "Verify end-to-end behavior in the deployed app flow: production URLs intended for backend JSON (log + readings retrieval) must not return the React app HTML, and HTTP logging via GET `/log?value=...` must persist and appear in the frontend readings table after the next polling refresh.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "build"
+        ]
+      },
+      "acceptanceCriteria": [
+        "In production, calling the backend JSON endpoints for logging and fetching readings returns JSON, not the React app HTML",
+        "After calling GET `/log?value=...`, the new reading appears in the frontend readings table after polling refresh"
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single-actor Motoko architecture; keep all Motoko logic in `backend/main.mo`.",
+    "Only add or update `backend/migration.mo` if state schema changes require an upgrade migration (follow conditional migration policy).",
+    "Do not edit files under `frontend/src/components/ui` or any paths listed in `frontend.immutablePaths`."
+  ],
+  "nonGoals": [
+    "Add third-party authentication providers (only Internet Identity is supported).",
+    "Introduce external databases or additional backend services.",
+    "Add real-time/WebSocket features; keep the polling-based approach."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

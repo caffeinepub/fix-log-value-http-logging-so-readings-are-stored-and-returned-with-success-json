@@ -1,2 +1,3 @@
-# fix-log-value-http-logging-so-readings-are-stored-and-returned-with-success-json
-Exported from Caffeine project: Fix /log?value=... HTTP logging so readings are stored and returned with success JSON
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

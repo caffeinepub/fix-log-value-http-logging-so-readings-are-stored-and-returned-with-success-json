@@ -1,0 +1,67 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-05T06:43:52.934Z",
+  "summary": "Frontend instructions card was updated to construct backend raw.icp0.io URLs and preserve the provided caffeine.xyz reference URL, but the backend HTTP JSON endpoints (http_request handler), /readings alias, and CORS/OPTIONS handling required by REQ-30/31/32 are not present in the backend diff. End-to-end verification (REQ-34) cannot be confirmed from code diffs.",
+  "missing_requirements": [
+    {
+      "id": "REQ-30",
+      "requirement": "Implement (or restore) a Motoko `http_request` handler in `backend/main.mo` so the backend canister directly serves HTTP JSON responses for GET `/log?value=...` (append) and GET `/data` (return all readings), with `Content-Type: application/json`, and not returning frontend HTML.",
+      "reason": "`backend/main.mo` in the diff contains only canister methods (e.g., `addReading`, `getAllReadings`) and does not show any `http_request` handler or HTTP routing/response construction.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "requirement": "Add GET route alias `/readings` in the backend `http_request` handler that returns the same JSON payload as `/data` with `Content-Type: application/json`.",
+      "reason": "No `http_request` handler or any `/readings` route implementation is present in the backend diff.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-32",
+      "requirement": "Ensure correct CORS handling in backend `http_request` for `/log`, `/data`, and `/readings`, including successful `OPTIONS` preflight responses, and curl success without Origin.",
+      "reason": "No HTTP handler exists in the backend diff; therefore no CORS headers and no `OPTIONS` preflight routing/handling are shown.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-34",
+      "requirement": "Verify end-to-end deployed behavior: backend JSON endpoints must not return React HTML; GET `/log?value=...` persists and appears in frontend after polling refresh.",
+      "reason": "The diff summary only shows code changes; it does not contain any deployment verification, test artifacts, or evidence demonstrating production endpoint behavior.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/components/HttpLoggingInstructionsCard.tsx"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added/retained extra backend query method `sayHello(name : Text)` unrelated to the requested HTTP JSON endpoints restore.",
+      "reason": "BuildRequest does not request a hello endpoint or method; it focuses on restoring `http_request` routes and CORS.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Introduced DTO and response-building helper types/functions (`ReadingDTO`, `toDTO`, `DataResponse`, `buildDataResponse`) without any corresponding HTTP handler usage in the shown diff.",
+      "reason": "BuildRequest does not ask for DTO refactoring; it specifically requests an `http_request` handler serving JSON and CORS. These helpers appear unused for the required HTTP endpoints in the provided diff snippet.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.78,
+  "changed_files": [
+    "backend/main.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/components/HttpLoggingInstructionsCard.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "project_state.json"
+  ]
+}

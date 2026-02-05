@@ -1,0 +1,74 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-05T06:43:52.972Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 5,
+    "implemented": 2,
+    "items": [
+      {
+        "id": "REQ-30",
+        "summary": "Implement (or restore) a Motoko `http_request` handler in `backend/main.mo` so the backend canister directly serves HTTP JSON responses (not the React app HTML) for GET `/log?value=...` (append a new numeric reading) and GET `/data` (return all readings). Responses must include `Content-Type: application/json`.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-31",
+        "summary": "Add an additional GET route alias `/readings` in the backend `http_request` handler that returns the exact same JSON payload as `/data` (same shape, fields, and `Content-Type`).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-32",
+        "summary": "Ensure correct CORS handling in the backend `http_request` handler for `/log`, `/data`, and `/readings`, including responding to `OPTIONS` preflight requests, so these endpoints can be called from browsers on caffeine.xyz (including draft and production origins) and from tools like curl.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-33",
+        "summary": "Update `frontend/src/components/HttpLoggingInstructionsCard.tsx` so the displayed/copyable “Log a Reading” and “Retrieve All Readings” URLs point to the backend canister’s HTTP base URL that actually serves JSON (the backend canister, not the frontend/asset canister URL). Preserve and still display the exact user-provided caffeine.xyz URL `https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/log?value=2.1` in the UI as a reference URL that is known to return the frontend/HTML (non-JSON) in production.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/HttpLoggingInstructionsCard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/HttpLoggingInstructionsCard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-34",
+        "summary": "Verify end-to-end behavior in the deployed app flow: production URLs intended for backend JSON (log + readings retrieval) must not return the React app HTML, and HTTP logging via GET `/log?value=...` must persist and appear in the frontend readings table after the next polling refresh.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/components/HttpLoggingInstructionsCard.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

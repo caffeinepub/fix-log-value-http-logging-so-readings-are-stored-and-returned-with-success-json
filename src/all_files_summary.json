@@ -1,0 +1,17 @@
+{
+  "backend/main.mo": "Motoko actor storing timestamped float readings, providing add, list, and latest-reading queries plus DTO builders and a simple greeting function.",
+  "feature_evidence.json": "Feature evidence report listing required frontend updates, affected files, components, and test IDs for backend-URL corrections and E2E verification.",
+  "frontend-file-summaries.txt": "Contains pre-written summaries of major frontend files including App, hooks, utilities, Tailwind config, and the HTTP instructions card.",
+  "frontend/index.css": "Tailwind base/style layer defining global theme variables and light/dark mode color tokens using OKLCH values.",
+  "frontend/index.html": "Basic HTML entrypoint mounting the React app and loading main.tsx.",
+  "frontend/src/App.tsx": "Main React UI rendering authentication controls, HTTP instructions, latest reading card with manual refresh, and auto‑refreshing readings table.",
+  "frontend/src/components/HttpLoggingInstructionsCard.tsx": "Component that builds backend canister JSON endpoint URLs, shows copyable log/read/readings URLs, and displays a reference caffeine.xyz URL.",
+  "frontend/src/hooks/useActor.ts": "Hook that creates and caches an authenticated or anonymous backend actor and invalidates dependent queries when identity changes.",
+  "frontend/src/hooks/useInternetIdentity.ts": "React context and provider handling Internet Identity login, stored identity loading, status tracking, and AuthClient creation.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks polling backend actor for all readings and latest reading every 3 seconds with graceful handling of missing data.",
+  "frontend/src/index.css": "Defines Tailwind layers and extensive OKLCH-based CSS variables for light/dark themes plus global base styles.",
+  "frontend/src/lib/format.ts": "Provides helper functions to format numbers and convert bigint nanosecond timestamps into readable date/time strings.",
+  "frontend/src/main.tsx": "Bootstraps the React app, wrapping it with React Query and Internet Identity providers.",
+  "frontend/tailwind.config.js": "Configures Tailwind with plugins, custom colors tied to CSS variables, typography, container settings, and extended theme options.",
+  "project_state.json": "Stores project metadata, versioned feature descriptions, and requirement mappings for the app's backend and frontend."
+}

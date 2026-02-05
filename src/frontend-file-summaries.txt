@@ -1,0 +1,8 @@
+{
+  "frontend/src/App.tsx": "Main application component with header, authentication controls, HTTP logging instructions card, latest reading card with manual refresh button, and all readings table with automatic 3-second polling plus manual refresh capability.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for fetching all readings and latest reading from the backend with 3-second polling intervals, exposing query keys for easy manual refetch/invalidation.",
+  "frontend/src/lib/format.ts": "Utility functions to format numeric values (supporting both decimal numbers and bigint) and convert nanosecond timestamps to readable English date/time strings.",
+  "frontend/src/index.css": "Global styles with warm neutral color palette (beige/tan tones) and emerald green accent using OKLCH color system for both light and dark modes.",
+  "frontend/tailwind.config.js": "Tailwind configuration with custom font families (Inter for sans, JetBrains Mono for monospace) and extended theme tokens.",
+  "frontend/src/components/HttpLoggingInstructionsCard.tsx": "Instructions card component that dynamically constructs backend canister HTTP endpoint URLs using the backend canister ID from environment variables, displays copyable JSON endpoint URLs for logging and retrieving readings, and includes a reference note about the HTML-returning caffeine.xyz URL."
+}
