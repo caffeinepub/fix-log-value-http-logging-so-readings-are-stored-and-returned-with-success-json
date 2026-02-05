@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Make production reliably resolve the backend canister ID and remove dependency on `/env.json` availability, then redeploy with correct configuration and clearer diagnostics.
+**Goal:** Fix frontend runtime configuration parsing so the backend canister ID is correctly resolved from production `/env.json`, and redeploy the frontend so production initializes successfully.
 
 **Planned changes:**
-- Update frontend runtime configuration loading to use a robust fallback chain: prefer build-time canister ID values, then optional `window.CANISTER_ID_BACKEND`, and only use `/env.json` when available (so `/env.json` 503 does not cause missing canister ID).
-- Verify and fix production build/redeploy so the frontend receives the correct deployed backend canister ID mapping at runtime (and ensure `/env.json` returns 200 with expected content if it remains used).
-- Improve `HttpLoggingInstructionsCard` error copy when the backend canister ID cannot be resolved to be actionable and configuration-focused (hard refresh recommendation; note to redeploy if it persists), without stack traces.
+- Update the runtime config loader to recognize `backend_canister_id` from `/env.json` (in addition to existing supported keys) and use it to resolve the backend canister ID at runtime.
+- Update `frontend/public/env.json` to include a non-empty backend canister ID key compatible with the loader (e.g., `backend_canister_id` and/or `CANISTER_ID_BACKEND`) to avoid relying on build-time env vars.
+- Perform a clean frontend-only rebuild and redeploy to production so the updated loader is included in the deployed bundle.
 
-**User-visible outcome:** In production, the app loads without “CANISTER_ID_BACKEND is not set” / “Backend canister ID not found” under normal conditions, shows a valid Backend Canister ID and API URLs when deployed, and provides a clearer configuration-loading message only when the ID cannot be resolved.
+**User-visible outcome:** The production app loads without the “Configuration Loading Failed” state, and the UI shows working endpoint URLs that include the resolved backend canister ID.

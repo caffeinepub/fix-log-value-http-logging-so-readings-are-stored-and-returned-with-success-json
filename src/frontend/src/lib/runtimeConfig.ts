@@ -33,7 +33,8 @@ async function tryLoadEnvJson(timeoutMs: number = 3000): Promise<string | null> 
     }
 
     const data = await response.json();
-    return data.CANISTER_ID_BACKEND || data.canisterId || null;
+    // Support multiple key formats: production uses backend_canister_id, dev uses CANISTER_ID_BACKEND
+    return data.backend_canister_id || data.CANISTER_ID_BACKEND || data.canisterId || null;
   } catch (error) {
     // Non-fatal: log and continue with other fallbacks
     if (error instanceof Error && error.name === 'AbortError') {

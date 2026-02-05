@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:28:29.161Z",
+  "generatedAt": "2026-02-05T22:40:23.247Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,45 +12,38 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the frontend runtime configuration loading so the app can always resolve the backend canister ID in production even when `GET /env.json` fails (503). Implement a robust fallback chain that prefers build-time values (e.g., `import.meta.env.VITE_CANISTER_ID_BACKEND` / `import.meta.env.CANISTER_ID_BACKEND`) and optional `window.CANISTER_ID_BACKEND`, and only uses `/env.json` when available; the app must not end up in a state where `CANISTER_ID_BACKEND is not set` solely because `/env.json` is unavailable.",
+        "summary": "Update the frontend runtime configuration loader to correctly read the backend canister ID from the production `/env.json` format that uses `backend_canister_id` (in addition to the existing `CANISTER_ID_BACKEND` and `canisterId` keys), so the app can resolve the backend canister ID at runtime.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/lib/runtimeConfig.ts",
-          "frontend/src/config.ts",
-          "frontend/src/hooks/useActor.ts",
           "frontend/src/components/HttpLoggingInstructionsCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/lib/runtimeConfig.ts",
-          "frontend/src/components/HttpLoggingInstructionsCard.tsx"
+          "frontend/src/lib/runtimeConfig.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the production build/redeploy correctly embeds or exposes the deployed backend canister ID to the frontend at runtime (so the UI does not show: \"Backend canister ID not found. Please ensure the backend is deployed.\"). This includes verifying that the production artifact contains the correct canister ID mapping and that the hosting path used by the frontend to obtain configuration is available (either by making `/env.json` return 200 with the expected content, or by eliminating the need for `/env.json` via REQ-1’s fallback mechanism).",
+        "summary": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (so local/static hosting doesn’t default to an empty `CANISTER_ID_BACKEND`).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/env.json",
-          "frontend/index.html",
-          "frontend/src/lib/runtimeConfig.ts"
+          "frontend/public/env.json"
         ],
         "matchedFiles": [
-          "frontend/public/env.json",
-          "frontend/index.html",
-          "frontend/src/lib/runtimeConfig.ts"
+          "frontend/public/env.json"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Improve user-facing diagnostics for configuration failures: when the backend canister ID cannot be resolved, update the UI state (in `HttpLoggingInstructionsCard`) to display a more actionable English error that mentions configuration loading failure (e.g., inability to load runtime config) and provides a single recommended step (hard refresh) plus a short note to redeploy if it persists, without exposing stack traces.",
+        "summary": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/HttpLoggingInstructionsCard.tsx",
-          "frontend/src/lib/runtimeConfig.ts"
+          "frontend/DEPLOY_FRONTEND_ONLY.md",
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/components/HttpLoggingInstructionsCard.tsx",
-          "frontend/src/lib/runtimeConfig.ts"
+          "frontend/DEPLOY_FRONTEND_ONLY.md",
+          "frontend/index.html"
         ]
       }
     ]
@@ -60,9 +53,9 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/DEPLOY_FRONTEND_ONLY.md",
     "frontend/index.html",
     "frontend/public/env.json",
-    "frontend/src/components/HttpLoggingInstructionsCard.tsx",
     "frontend/src/lib/runtimeConfig.ts",
     "project_state.json",
     "scratch/component-selection.json",

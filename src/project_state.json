@@ -1,34 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "HTTP Logging API / simple data logging web app on ICP (Caffeine) with Motoko backend and a frontend that loads backend canister configuration from env.json.",
   "architectural_notes": [
-    "Frontend loads backend canister ID/config from /env.json; if env.json fails to load, CANISTER_ID_BACKEND is unset and the app shows 'Backend canister ID not found'."
+    "Frontend runtime loads backend configuration from /env.json (backend_host, backend_canister_id, project_id, ii_derivation_origin)."
   ],
   "known_issues": [
-    "Production frontend GET /env.json returns 503, causing CANISTER_ID_BACKEND not set and 'Backend canister ID not found. Please ensure the backend is deployed.' error."
+    "Production frontend build is failing to resolve backend canister ID (RuntimeConfig cannot read backend_canister_id), despite /env.json being accessible and valid; likely requires frontend-only rebuild/redeploy."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-frontend-runtime-configuration-loading-so-the-app-can-always-resolve-the-backend-canister-id-in-production-even-when-get-env-json-fails-503-implement-a-robust-fallback-chain-that-prefers-build-time-values-e-g-import-meta-env-vite-canister-id-backend-import-meta-env-canister-id-backend-and-optional-window-canister-id-backend-and-only-uses-env-json-when-available-the-app-must-not-end-up-in-a-state-where-canister-id-backend-is-not-set-solely-because-env-json-is-unavailable",
-      "title": "Fix the frontend runtime configuration loading so the app can always resolve the backend canister ID in production even when `GET /env.json` fails (503). Implement a robust fallback chain that prefers build-time values (e.g., `import.meta.env.VITE_CANISTER_ID_BACKEND` / `import.meta.env.CANISTER_ID_BACKEND`) and optional `window.CANISTER_ID_BACKEND`, and only uses `/env.json` when available; the app must not end up in a state where `CANISTER_ID_BACKEND is not set` solely because `/env.json` is unavailable.",
+      "id": "feature-update-the-frontend-runtime-configuration-loader-to-correctly-read-the-backend-canister-id-from-the-production-env-json-format-that-uses-backend-canister-id-in-addition-to-the-existing-canister-id-backend-and-canisterid-keys-so-the-app-can-resolve-the-backend-canister-id-at-runtime",
+      "title": "Update the frontend runtime configuration loader to correctly read the backend canister ID from the production `/env.json` format that uses `backend_canister_id` (in addition to the existing `CANISTER_ID_BACKEND` and `canisterId` keys), so the app can resolve the backend canister ID at runtime.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-production-build-redeploy-correctly-embeds-or-exposes-the-deployed-backend-canister-id-to-the-frontend-at-runtime-so-the-ui-does-not-show-backend-canister-id-not-found-please-ensure-the-backend-is-deployed-this-includes-verifying-that-the-production-artifact-contains-the-correct-canister-id-mapping-and-that-the-hosting-path-used-by-the-frontend-to-obtain-configuration-is-available-either-by-making-env-json-return-200-with-the-expected-content-or-by-eliminating-the-need-for-env-json-via-req-1-s-fallback-mechanism",
-      "title": "Ensure the production build/redeploy correctly embeds or exposes the deployed backend canister ID to the frontend at runtime (so the UI does not show: \"Backend canister ID not found. Please ensure the backend is deployed.\"). This includes verifying that the production artifact contains the correct canister ID mapping and that the hosting path used by the frontend to obtain configuration is available (either by making `/env.json` return 200 with the expected content, or by eliminating the need for `/env.json` via REQ-1’s fallback mechanism).",
+      "id": "feature-align-the-checked-in-static-frontend-public-env-json-key-naming-with-what-the-runtime-loader-supports-by-including-a-compatible-backend-canister-id-key-so-local-static-hosting-doesn-t-default-to-an-empty-canister-id-backend",
+      "title": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (so local/static hosting doesn’t default to an empty `CANISTER_ID_BACKEND`).",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-improve-user-facing-diagnostics-for-configuration-failures-when-the-backend-canister-id-cannot-be-resolved-update-the-ui-state-in-httplogginginstructionscard-to-display-a-more-actionable-english-error-that-mentions-configuration-loading-failure-e-g-inability-to-load-runtime-config-and-provides-a-single-recommended-step-hard-refresh-plus-a-short-note-to-redeploy-if-it-persists-without-exposing-stack-traces",
-      "title": "Improve user-facing diagnostics for configuration failures: when the backend canister ID cannot be resolved, update the UI state (in `HttpLoggingInstructionsCard`) to display a more actionable English error that mentions configuration loading failure (e.g., inability to load runtime config) and provides a single recommended step (hard refresh) plus a short note to redeploy if it persists, without exposing stack traces.",
+      "id": "feature-perform-a-clean-frontend-only-rebuild-redeploy-to-production-so-the-updated-runtime-config-loader-is-included-in-the-deployed-js-bundle-and-the-production-app-successfully-initializes-using-env-json",
+      "title": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
       "reqIds": [
         "REQ-3"
       ],
@@ -36,7 +36,8 @@
     }
   ],
   "new_feature_requests": [],
-  "projectName": "Fix production CANISTER_ID_BACKEND/env.json configuration and redeploy",
+  "gameProjectType": "none",
+  "projectName": "Fix runtime config parsing of env.json and redeploy frontend so backend canister ID resolves in production",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

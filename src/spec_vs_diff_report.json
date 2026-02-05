@@ -1,25 +1,49 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:28:29.159Z",
-  "summary": "Implemented a new runtime configuration resolver with a fallback chain (build-time env → window global → sessionStorage cache → /env.json) and updated HttpLoggingInstructionsCard to use it with improved English error messaging and a hard refresh action. Added a static public env.json and a hint in index.html for injecting window.CANISTER_ID_BACKEND. However, the diff does not demonstrate that the production build/redeploy will expose the *correct deployed* backend canister ID (env.json currently contains an empty value).",
+  "generatedAt": "2026-02-05T22:40:23.245Z",
+  "summary": "REQ-1 is implemented by adding support for `backend_canister_id` when parsing `/env.json`. REQ-2 appears incomplete because the checked-in `frontend/public/env.json` still has empty values for the backend canister ID keys. REQ-3 (actual production rebuild/redeploy) cannot be verified from the diff; only documentation/checklist changes are shown.",
   "missing_requirements": [
     {
       "id": "REQ-2",
-      "requirement": "Ensure the production build/redeploy correctly embeds or exposes the deployed backend canister ID to the frontend at runtime (matching the actually deployed production backend canister), and if /env.json remains used, it should return 200 with the expected backend canister ID content.",
-      "reason": "The added frontend/public/env.json exists but sets \"CANISTER_ID_BACKEND\" to an empty string, and there is no evidence in the diff of injecting or embedding the real deployed production canister ID into the production artifact/runtime configuration.",
+      "requirement": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (non-empty, readable by the loader).",
+      "reason": "`frontend/public/env.json` includes the compatible keys but both values are empty strings, so it does not meet the acceptance criteria requiring a non-empty key/value that the loader can read for static/local hosting.",
       "evidence": [
         "frontend/public/env.json"
       ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
+      "reason": "The diff shows code/documentation changes but does not provide evidence of an actual rebuild/redeploy artifact or production deployment result; this cannot be confirmed from repository diffs alone.",
+      "evidence": [
+        "frontend/DEPLOY_FRONTEND_ONLY.md",
+        "frontend/index.html"
+      ]
     }
   ],
-  "hallucinated_features": [],
+  "hallucinated_features": [
+    {
+      "description": "Added sessionStorage caching and a reordered/expanded fallback chain (build-time env → window → session cache → env.json), plus fetch timeout/AbortController behavior for `/env.json` loading.",
+      "reason": "REQ-1 only asked to support reading `backend_canister_id` from `/env.json` in addition to existing keys; the additional caching, timeout handling, and new fallback priority are extra behaviors not explicitly requested.",
+      "evidence": [
+        "frontend/src/lib/runtimeConfig.ts"
+      ]
+    },
+    {
+      "description": "Added a deploy verification marker comment and an optional inline script snippet in `index.html` describing `window.CANISTER_ID_BACKEND` injection.",
+      "reason": "Not explicitly requested by REQ-1/REQ-2/REQ-3; it is ancillary deployment/configuration guidance rather than a stated requirement.",
+      "evidence": [
+        "frontend/index.html"
+      ]
+    }
+  ],
   "confidence": 0.74,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/DEPLOY_FRONTEND_ONLY.md",
     "frontend/index.html",
     "frontend/public/env.json",
-    "frontend/src/components/HttpLoggingInstructionsCard.tsx",
     "frontend/src/lib/runtimeConfig.ts",
     "project_state.json"
   ]

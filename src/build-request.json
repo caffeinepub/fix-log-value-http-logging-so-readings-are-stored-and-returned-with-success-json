@@ -1,75 +1,71 @@
 {
   "kind": "build_request",
-  "title": "Fix production CANISTER_ID_BACKEND/env.json configuration and redeploy",
+  "title": "Fix runtime config parsing of env.json and redeploy frontend so backend canister ID resolves in production",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the frontend runtime configuration loading so the app can always resolve the backend canister ID in production even when `GET /env.json` fails (503). Implement a robust fallback chain that prefers build-time values (e.g., `import.meta.env.VITE_CANISTER_ID_BACKEND` / `import.meta.env.CANISTER_ID_BACKEND`) and optional `window.CANISTER_ID_BACKEND`, and only uses `/env.json` when available; the app must not end up in a state where `CANISTER_ID_BACKEND is not set` solely because `/env.json` is unavailable.",
+      "text": "Update the frontend runtime configuration loader to correctly read the backend canister ID from the production `/env.json` format that uses `backend_canister_id` (in addition to the existing `CANISTER_ID_BACKEND` and `canisterId` keys), so the app can resolve the backend canister ID at runtime.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-1",
-          "msg-user-2"
+          "recent-messages"
         ],
         "quotes": [
-          "index-Cl1utmHt.js:24516  GET https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/env.json 503 (Service Unavailable)",
-          "index-Cl1utmHt.js:24534 CANISTER_ID_BACKEND is not set"
+          "this is in env.json\n\n{\n  \"backend_host\": \"https://icp-api.io\",\n  \"backend_canister_id\": \"bw6w3-liaaa-aaaao-a6lja-cai\",\n  \"project_id\": \"019c2bca-2092-7451-929c-3788d243f166\",\n  \"ii_derivation_origin\": \"https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz\"\n}"
         ]
       },
       "acceptanceCriteria": [
-        "Loading the production site no longer depends on successfully fetching `/env.json`; if `/env.json` is unavailable, the app still resolves the backend canister ID via fallback(s).",
-        "The browser console no longer logs `CANISTER_ID_BACKEND is not set` during normal page load in production.",
-        "`HttpLoggingInstructionsCard` shows a non-empty Backend Canister ID and non-empty API URLs when the backend is deployed.",
-        "When visiting the production app and then opening a constructed raw URL like `https://<backendCanisterId>.raw.icp0.io/log?value=2.1`, it succeeds (no missing-canister-ID blocker from the frontend)."
+        "When `/env.json` contains `backend_canister_id`, `resolveBackendCanisterId()` returns that value as `backendCanisterId` (not null).",
+        "The console no longer logs: \"[RuntimeConfig] Failed to resolve backend canister ID from any source\" when `/env.json` is reachable and contains `backend_canister_id`.",
+        "The UI no longer shows the \"Configuration Loading Failed\" state when `/env.json` contains a valid `backend_canister_id`."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the production build/redeploy correctly embeds or exposes the deployed backend canister ID to the frontend at runtime (so the UI does not show: \"Backend canister ID not found. Please ensure the backend is deployed.\"). This includes verifying that the production artifact contains the correct canister ID mapping and that the hosting path used by the frontend to obtain configuration is available (either by making `/env.json` return 200 with the expected content, or by eliminating the need for `/env.json` via REQ-1’s fallback mechanism).",
-      "target": "both",
+      "text": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (so local/static hosting doesn’t default to an empty `CANISTER_ID_BACKEND`).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-3"
+          "recent-messages"
         ],
         "quotes": [
-          "version 5 production - still the same message error: \"Backend canister ID not found. Please ensure the backend is deployed.\""
+          "this is in env.json\n\n{\n  \"backend_host\": \"https://icp-api.io\",\n  \"backend_canister_id\": \"bw6w3-liaaa-aaaao-a6lja-cai\",\n  \"project_id\": \"019c2bca-2092-7451-929c-3788d243f166\",\n  \"ii_derivation_origin\": \"https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz\"\n}"
         ]
       },
       "acceptanceCriteria": [
-        "After redeploy, the production UI no longer shows the \"Backend canister ID not found. Please ensure the backend is deployed.\" alert under normal conditions.",
-        "The backend canister ID used by the frontend matches the actually deployed backend canister for the production environment.",
-        "If `/env.json` remains part of the runtime path, requesting it in production returns HTTP 200 (not 503) and includes the backend canister ID value expected by the frontend."
+        "`frontend/public/env.json` contains a non-empty key that the loader can read (either `backend_canister_id` or `CANISTER_ID_BACKEND`), or includes both keys consistently.",
+        "With a populated `frontend/public/env.json`, the app resolves a backend canister ID without requiring any build-time env vars or `window.CANISTER_ID_BACKEND`."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Improve user-facing diagnostics for configuration failures: when the backend canister ID cannot be resolved, update the UI state (in `HttpLoggingInstructionsCard`) to display a more actionable English error that mentions configuration loading failure (e.g., inability to load runtime config) and provides a single recommended step (hard refresh) plus a short note to redeploy if it persists, without exposing stack traces.",
+      "text": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-3",
-          "msg-user-2"
+          "recent-messages"
         ],
         "quotes": [
-          "Backend canister ID not found. Please ensure the backend is deployed.",
-          "GET https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/env.json 503 (Service Unavailable)"
+          "Do you want me to trigger a frontend‑only rebuild and push it to production?",
+          "yes"
         ]
       },
       "acceptanceCriteria": [
-        "When no backend canister ID is available, the UI message is in English and references a configuration/loading issue rather than implying the backend is necessarily not deployed.",
-        "The diagnostics message is concise and does not include stack traces or internal implementation details.",
-        "When the backend canister ID is available, the diagnostics message is not shown."
+        "Loading https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/ in a fresh/incognito session successfully renders the app without the configuration failure card.",
+        "The HTTP Logging API card displays working endpoint URLs that include the resolved canister ID (e.g., `https://<canisterId>.raw.icp0.io/...`)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under `frontend/src/components/ui` or any other path listed in `frontend.immutablePaths` in SYSTEM_CONTEXT.",
-    "Backend must remain a single Motoko actor in `backend/main.mo`; only add a `backend/migration.mo` if a state migration is actually required."
+    "Do not edit files under `frontend/src/components/ui` (read-only UI primitives).",
+    "Do not modify immutable hook files: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`.",
+    "Keep backend as a single Motoko actor; no backend changes are required for this fix."
   ],
   "nonGoals": [
-    "Adding new product features beyond fixing configuration/redeploy (e.g., new logging endpoints, new pages, or new auth providers).",
-    "Changing the app’s overall visual theme beyond small copy/UX adjustments needed for the configuration error state."
+    "Adding new product features beyond fixing runtime configuration resolution and redeploying the frontend.",
+    "Changing authentication behavior or Internet Identity integration.",
+    "Introducing external databases or third-party configuration services."
   ],
   "imageRequirements": {
     "required": [],
