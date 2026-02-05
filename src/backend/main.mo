@@ -1,5 +1,4 @@
 import Map "mo:core/Map";
-import Text "mo:core/Text";
 import Nat "mo:core/Nat";
 import Time "mo:core/Time";
 import Runtime "mo:core/Runtime";
@@ -24,7 +23,9 @@ actor {
   };
 
   type ReadingId = Nat;
+
   var nextId : ReadingId = 0;
+
   let readings = Map.empty<ReadingId, Reading>();
 
   public shared ({ caller }) func addReading(value : Float) : async Reading {

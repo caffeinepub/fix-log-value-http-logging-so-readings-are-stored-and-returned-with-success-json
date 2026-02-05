@@ -1,42 +1,4 @@
 {
   "kind": "feature_evidence_report",
-  "features": [
-    {
-      "featureId": "feature-update-frontend-src-components-httplogginginstructionscard-tsx-so-the-displayed-copyable-log-a-reading-and-retrieve-all-readings-urls-point-to-the-backend-canister-s-http-base-url-that-actually-serves-json-the-backend-canister-not-the-frontend-asset-canister-url-preserve-and-still-display-the-exact-user-provided-caffeine-xyz-url-https-simple-data-logging-web-app-with-motoko-http-endpo-d3a-caffeine-xyz-log-value-2-1-in-the-ui-as-a-reference-url-that-is-known-to-return-the-frontend-html-non-json-in-production",
-      "featureTitle": "Update `frontend/src/components/HttpLoggingInstructionsCard.tsx` so the displayed/copyable “Log a Reading” and “Retrieve All Readings” URLs point to the backend canister’s HTTP base URL that actually serves JSON (the backend canister, not the frontend/asset canister URL). Preserve and still display the exact user-provided caffeine.xyz URL `https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/log?value=2.1` in the UI as a reference URL that is known to return the frontend/HTML (non-JSON) in production.",
-      "files": [
-        "frontend/src/components/HttpLoggingInstructionsCard.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-33"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-verify-end-to-end-behavior-in-the-deployed-app-flow-production-urls-intended-for-backend-json-log-readings-retrieval-must-not-return-the-react-app-html-and-http-logging-via-get-log-value-must-persist-and-appear-in-the-frontend-readings-table-after-the-next-polling-refresh",
-      "featureTitle": "Verify end-to-end behavior in the deployed app flow: production URLs intended for backend JSON (log + readings retrieval) must not return the React app HTML, and HTTP logging via GET `/log?value=...` must persist and appear in the frontend readings table after the next polling refresh.",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-34"
-      ],
-      "confidence": "high"
-    }
-  ]
+  "features": []
 }
