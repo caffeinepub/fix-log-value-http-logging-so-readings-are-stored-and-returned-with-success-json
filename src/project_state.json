@@ -1,43 +1,55 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "HTTP Logging API / simple data logging web app on ICP (Caffeine) with Motoko backend and a frontend that loads backend canister configuration from env.json.",
-  "architectural_notes": [
-    "Frontend runtime loads backend configuration from /env.json (backend_host, backend_canister_id, project_id, ii_derivation_origin)."
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [
-    "Production frontend build is failing to resolve backend canister ID (RuntimeConfig cannot read backend_canister_id), despite /env.json being accessible and valid; likely requires frontend-only rebuild/redeploy."
+    "Data is not being successfully logged (user reported ongoing logging failure)."
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-frontend-runtime-configuration-loader-to-correctly-read-the-backend-canister-id-from-the-production-env-json-format-that-uses-backend-canister-id-in-addition-to-the-existing-canister-id-backend-and-canisterid-keys-so-the-app-can-resolve-the-backend-canister-id-at-runtime",
-      "title": "Update the frontend runtime configuration loader to correctly read the backend canister ID from the production `/env.json` format that uses `backend_canister_id` (in addition to the existing `CANISTER_ID_BACKEND` and `canisterId` keys), so the app can resolve the backend canister ID at runtime.",
+      "id": "feature-update-the-frontend-http-instructions-ui-to-display-the-new-status-endpoint-url-built-from-the-resolved-backend-canister-id-including-copy-to-clipboard-and-open-in-new-tab-controls-consistent-with-the-existing-endpoint-rows",
+      "title": "Update the frontend HTTP instructions UI to display the new `/status` endpoint URL (built from the resolved backend canister ID), including copy-to-clipboard and open-in-new-tab controls consistent with the existing endpoint rows.",
       "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-align-the-checked-in-static-frontend-public-env-json-key-naming-with-what-the-runtime-loader-supports-by-including-a-compatible-backend-canister-id-key-so-local-static-hosting-doesn-t-default-to-an-empty-canister-id-backend",
-      "title": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (so local/static hosting doesn’t default to an empty `CANISTER_ID_BACKEND`).",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-perform-a-clean-frontend-only-rebuild-redeploy-to-production-so-the-updated-runtime-config-loader-is-included-in-the-deployed-js-bundle-and-the-production-app-successfully-initializes-using-env-json",
-      "title": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
-      "reqIds": [
-        "REQ-3"
+        "REQ-4"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "gameProjectType": "none",
-  "projectName": "Fix runtime config parsing of env.json and redeploy frontend so backend canister ID resolves in production",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add HTTP GET /status endpoint that returns the canister status",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Implement the Internet Computer HTTP interface on the backend canister by exporting a public query `http_request` function that can be called via `https://<CANISTER_ID>.raw.icp0.io/...`, and route requests by URL path.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add an HTTP GET endpoint `GET /status` that returns a JSON object describing canister status (health) sufficient to debug whether logging is working (e.g., includes current time and reading counters such as `nextId` and the number of readings stored).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "For unsupported paths/methods on the HTTP interface, return a JSON error response with an appropriate HTTP status code (e.g., 404 for unknown path, 405 for unsupported method).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Add raw.icp0.io HTTP GET /status endpoint for canister health/status",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -1,71 +1,94 @@
 {
   "kind": "build_request",
-  "title": "Fix runtime config parsing of env.json and redeploy frontend so backend canister ID resolves in production",
-  "priority": "high",
+  "title": "Add raw.icp0.io HTTP GET /status endpoint for canister health/status",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the frontend runtime configuration loader to correctly read the backend canister ID from the production `/env.json` format that uses `backend_canister_id` (in addition to the existing `CANISTER_ID_BACKEND` and `canisterId` keys), so the app can resolve the backend canister ID at runtime.",
-      "target": "frontend",
+      "text": "Implement the Internet Computer HTTP interface on the backend canister by exporting a public query `http_request` function that can be called via `https://<CANISTER_ID>.raw.icp0.io/...`, and route requests by URL path.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-4",
+          "msg-7",
+          "msg-11"
         ],
         "quotes": [
-          "this is in env.json\n\n{\n  \"backend_host\": \"https://icp-api.io\",\n  \"backend_canister_id\": \"bw6w3-liaaa-aaaao-a6lja-cai\",\n  \"project_id\": \"019c2bca-2092-7451-929c-3788d243f166\",\n  \"ii_derivation_origin\": \"https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz\"\n}"
+          "yes add one of the http endpoints now",
+          "2. let's do simple /status",
+          "we just want to return the status of the canister"
         ]
       },
       "acceptanceCriteria": [
-        "When `/env.json` contains `backend_canister_id`, `resolveBackendCanisterId()` returns that value as `backendCanisterId` (not null).",
-        "The console no longer logs: \"[RuntimeConfig] Failed to resolve backend canister ID from any source\" when `/env.json` is reachable and contains `backend_canister_id`.",
-        "The UI no longer shows the \"Configuration Loading Failed\" state when `/env.json` contains a valid `backend_canister_id`."
+        "Backend canister exports a public query method named `http_request` that is callable through the raw.icp0.io HTTP gateway (no longer returns 503/method-not-found for implemented routes).",
+        "`http_request` inspects the incoming HTTP request URL/path and dispatches to the correct handler.",
+        "Responses include `Content-Type: application/json; charset=utf-8` and include permissive CORS headers (at minimum `Access-Control-Allow-Origin: *`) so the endpoint can be called from a browser."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (so local/static hosting doesn’t default to an empty `CANISTER_ID_BACKEND`).",
-      "target": "frontend",
+      "text": "Add an HTTP GET endpoint `GET /status` that returns a JSON object describing canister status (health) sufficient to debug whether logging is working (e.g., includes current time and reading counters such as `nextId` and the number of readings stored).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-7"
         ],
         "quotes": [
-          "this is in env.json\n\n{\n  \"backend_host\": \"https://icp-api.io\",\n  \"backend_canister_id\": \"bw6w3-liaaa-aaaao-a6lja-cai\",\n  \"project_id\": \"019c2bca-2092-7451-929c-3788d243f166\",\n  \"ii_derivation_origin\": \"https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz\"\n}"
+          "we just want to return the status of the canister since data isnt being successfully logged stil"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/public/env.json` contains a non-empty key that the loader can read (either `backend_canister_id` or `CANISTER_ID_BACKEND`), or includes both keys consistently.",
-        "With a populated `frontend/public/env.json`, the app resolves a backend canister ID without requiring any build-time env vars or `window.CANISTER_ID_BACKEND`."
+        "GET `https://<CANISTER_ID>.raw.icp0.io/status` returns HTTP 200 with a JSON body.",
+        "The JSON includes a clear health indicator (e.g., `ok: true`) and includes fields that reflect the canister’s current logging state (e.g., `nextId` and a `readingsCount` derived from stored readings).",
+        "When there are no readings yet, `/status` still returns 200 and shows counters consistent with an empty state (e.g., `nextId` is 0 and `readingsCount` is 0)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
-      "target": "frontend",
+      "text": "For unsupported paths/methods on the HTTP interface, return a JSON error response with an appropriate HTTP status code (e.g., 404 for unknown path, 405 for unsupported method).",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-4",
+          "msg-7"
         ],
         "quotes": [
-          "Do you want me to trigger a frontend‑only rebuild and push it to production?",
-          "yes"
+          "yes add one of the http endpoints now",
+          "2. let's do simple /status"
         ]
       },
       "acceptanceCriteria": [
-        "Loading https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/ in a fresh/incognito session successfully renders the app without the configuration failure card.",
-        "The HTTP Logging API card displays working endpoint URLs that include the resolved canister ID (e.g., `https://<canisterId>.raw.icp0.io/...`)."
+        "Requests to unknown paths on `https://<CANISTER_ID>.raw.icp0.io/...` return HTTP 404 with a JSON error body.",
+        "Non-GET requests to `/status` return HTTP 405 (or equivalent) with a JSON error body."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update the frontend HTTP instructions UI to display the new `/status` endpoint URL (built from the resolved backend canister ID), including copy-to-clipboard and open-in-new-tab controls consistent with the existing endpoint rows.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-7"
+        ],
+        "quotes": [
+          "2. let's do simple /status"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a backend canister ID is successfully resolved, the UI shows a `https://<CANISTER_ID>.raw.icp0.io/status` URL.",
+        "The `/status` row includes a copy button that copies the exact URL and provides the same temporary 'Copied!' feedback behavior as other endpoints.",
+        "The `/status` row includes an external-link button that opens the URL in a new tab."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under `frontend/src/components/ui` (read-only UI primitives).",
-    "Do not modify immutable hook files: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`.",
-    "Keep backend as a single Motoko actor; no backend changes are required for this fix."
+    "Backend must remain a single Motoko actor in `backend/main.mo`; do not introduce additional backend services.",
+    "Do not modify any frontend files under `frontend/src/components/ui` or any paths listed as immutable in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Adding new product features beyond fixing runtime configuration resolution and redeploying the frontend.",
-    "Changing authentication behavior or Internet Identity integration.",
-    "Introducing external databases or third-party configuration services."
+    "Do not add unrelated new endpoints beyond `GET /status` in this change request.",
+    "Do not implement third-party monitoring/alerting integrations.",
+    "Do not redesign the overall UI beyond adding the new `/status` URL row."
   ],
   "imageRequirements": {
     "required": [],

@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-frontend-runtime-configuration-loader-to-correctly-read-the-backend-canister-id-from-the-production-env-json-format-that-uses-backend-canister-id-in-addition-to-the-existing-canister-id-backend-and-canisterid-keys-so-the-app-can-resolve-the-backend-canister-id-at-runtime",
-      "featureTitle": "Update the frontend runtime configuration loader to correctly read the backend canister ID from the production `/env.json` format that uses `backend_canister_id` (in addition to the existing `CANISTER_ID_BACKEND` and `canisterId` keys), so the app can resolve the backend canister ID at runtime.",
+      "featureId": "feature-update-the-frontend-http-instructions-ui-to-display-the-new-status-endpoint-url-built-from-the-resolved-backend-canister-id-including-copy-to-clipboard-and-open-in-new-tab-controls-consistent-with-the-existing-endpoint-rows",
+      "featureTitle": "Update the frontend HTTP instructions UI to display the new `/status` endpoint URL (built from the resolved backend canister ID), including copy-to-clipboard and open-in-new-tab controls consistent with the existing endpoint rows.",
       "files": [
-        "frontend/src/lib/runtimeConfig.ts"
+        "frontend/src/components/HttpLoggingInstructionsCard.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -15,44 +15,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-align-the-checked-in-static-frontend-public-env-json-key-naming-with-what-the-runtime-loader-supports-by-including-a-compatible-backend-canister-id-key-so-local-static-hosting-doesn-t-default-to-an-empty-canister-id-backend",
-      "featureTitle": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (so local/static hosting doesn’t default to an empty `CANISTER_ID_BACKEND`).",
-      "files": [
-        "frontend/public/env.json"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-perform-a-clean-frontend-only-rebuild-redeploy-to-production-so-the-updated-runtime-config-loader-is-included-in-the-deployed-js-bundle-and-the-production-app-successfully-initializes-using-env-json",
-      "featureTitle": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
-      "files": [
-        "frontend/DEPLOY_FRONTEND_ONLY.md",
-        "frontend/index.html"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
+        "REQ-4"
       ],
       "confidence": "high"
     }

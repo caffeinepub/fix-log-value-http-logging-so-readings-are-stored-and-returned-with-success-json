@@ -1,62 +1,57 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:40:23.247Z",
+  "generatedAt": "2026-02-06T02:29:45.124Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the frontend runtime configuration loader to correctly read the backend canister ID from the production `/env.json` format that uses `backend_canister_id` (in addition to the existing `CANISTER_ID_BACKEND` and `canisterId` keys), so the app can resolve the backend canister ID at runtime.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/lib/runtimeConfig.ts",
-          "frontend/src/components/HttpLoggingInstructionsCard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/lib/runtimeConfig.ts"
-        ]
+        "summary": "Implement the Internet Computer HTTP interface on the backend canister by exporting a public query `http_request` function that can be called via `https://<CANISTER_ID>.raw.icp0.io/...`, and route requests by URL path.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Align the checked-in static `frontend/public/env.json` key naming with what the runtime loader supports by including a compatible backend canister ID key (so local/static hosting doesn’t default to an empty `CANISTER_ID_BACKEND`).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/public/env.json"
-        ],
-        "matchedFiles": [
-          "frontend/public/env.json"
-        ]
+        "summary": "Add an HTTP GET endpoint `GET /status` that returns a JSON object describing canister status (health) sufficient to debug whether logging is working (e.g., includes current time and reading counters such as `nextId` and the number of readings stored).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-3",
-        "summary": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader is included in the deployed JS bundle and the production app successfully initializes using `/env.json`.",
+        "summary": "For unsupported paths/methods on the HTTP interface, return a JSON error response with an appropriate HTTP status code (e.g., 404 for unknown path, 405 for unsupported method).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Update the frontend HTTP instructions UI to display the new `/status` endpoint URL (built from the resolved backend canister ID), including copy-to-clipboard and open-in-new-tab controls consistent with the existing endpoint rows.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/DEPLOY_FRONTEND_ONLY.md",
-          "frontend/index.html"
+          "frontend/src/components/HttpLoggingInstructionsCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/DEPLOY_FRONTEND_ONLY.md",
-          "frontend/index.html"
+          "frontend/src/components/HttpLoggingInstructionsCard.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/DEPLOY_FRONTEND_ONLY.md",
-    "frontend/index.html",
-    "frontend/public/env.json",
-    "frontend/src/lib/runtimeConfig.ts",
+    "frontend/src/components/HttpLoggingInstructionsCard.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

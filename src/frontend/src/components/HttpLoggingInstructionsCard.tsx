@@ -29,6 +29,7 @@ export function HttpLoggingInstructionsCard() {
   const backendLogUrl = backendBaseUrl ? `${backendBaseUrl}/log?value=2.1` : '';
   const backendReadingsUrl = backendBaseUrl ? `${backendBaseUrl}/readings` : '';
   const backendDataUrl = backendBaseUrl ? `${backendBaseUrl}/data` : '';
+  const backendStatusUrl = backendBaseUrl ? `${backendBaseUrl}/status` : '';
 
   const handleCopy = async (url: string, label: string) => {
     try {
@@ -226,6 +227,43 @@ export function HttpLoggingInstructionsCard() {
               className="shrink-0"
             >
               <a href={backendDataUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          </div>
+        </div>
+
+        {/* Status Endpoint */}
+        <div className="space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground mb-1">Check Canister Status</h3>
+            <p className="text-sm text-muted-foreground mb-3">
+              Get the current status and health of the canister:
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 px-3 py-2 rounded-md bg-muted text-sm font-mono break-all">
+              {backendStatusUrl}
+            </code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleCopy(backendStatusUrl, 'status')}
+              className="shrink-0"
+            >
+              {copiedUrl === 'status' ? (
+                <span className="text-xs">Copied!</span>
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="shrink-0"
+            >
+              <a href={backendStatusUrl} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>

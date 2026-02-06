@@ -1,61 +1,21 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix runtime env.json parsing for backend canister ID resolution and prepare frontend-only redeploy",
+  "title": "Display /status raw.icp0.io URL in HTTP instructions UI",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Extend the runtime config loader to support production env.json key `backend_canister_id` so the backend canister ID resolves at runtime.",
+      "id": "REQ-4",
+      "summary": "Add a new copyable/openable `/status` row to the HTTP instructions UI using the resolved backend canister ID.",
       "acceptanceCriteria": [
-        "When `/env.json` contains `backend_canister_id`, `resolveBackendCanisterId()` returns that value as `backendCanisterId` (not null).",
-        "The console no longer logs: \"[RuntimeConfig] Failed to resolve backend canister ID from any source\" when `/env.json` is reachable and contains `backend_canister_id`.",
-        "The UI no longer shows the \"Configuration Loading Failed\" state when `/env.json` contains a valid `backend_canister_id`."
+        "When a backend canister ID is successfully resolved, the UI shows a `https://<CANISTER_ID>.raw.icp0.io/status` URL.",
+        "The `/status` row includes a copy button that copies the exact URL and provides the same temporary 'Copied!' feedback behavior as other endpoints.",
+        "The `/status` row includes an external-link button that opens the URL in a new tab."
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/lib/runtimeConfig.ts",
-          "operation": "modify",
-          "description": "Update the core-infrastructure runtime configuration loader to parse the production `/env.json` format by additionally checking `backend_canister_id` (alongside existing `CANISTER_ID_BACKEND` and `canisterId`) when resolving the backend canister ID; ensure successful resolution avoids the failure log path. Verify the component's usage instructions before implementing."
-        },
         {
           "path": "frontend/src/components/HttpLoggingInstructionsCard.tsx",
           "operation": "modify",
-          "description": "Ensure the UI failure state and diagnostics behavior aligns with the updated runtime config resolution (e.g., no false \"Configuration Loading Failed\" when `backend_canister_id` is present and resolved). Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Update checked-in `frontend/public/env.json` to include a compatible backend canister ID key that the runtime loader can read for static/local hosting.",
-      "acceptanceCriteria": [
-        "`frontend/public/env.json` contains a non-empty key that the loader can read (either `backend_canister_id` or `CANISTER_ID_BACKEND`), or includes both keys consistently.",
-        "With a populated `frontend/public/env.json`, the app resolves a backend canister ID without requiring any build-time env vars or `window.CANISTER_ID_BACKEND`."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/public/env.json",
-          "operation": "modify",
-          "description": "Align the static runtime config with supported keys by adding `backend_canister_id` (and optionally keeping `CANISTER_ID_BACKEND` in sync) and ensuring at least one supported key is non-empty so runtime resolution works without build-time injection."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Perform a clean frontend-only rebuild/redeploy to production so the updated runtime config loader ships and production initializes from `/env.json`.",
-      "acceptanceCriteria": [
-        "Loading https://simple-data-logging-web-app-with-motoko-http-endpo-d3a.caffeine.xyz/ in a fresh/incognito session successfully renders the app without the configuration failure card.",
-        "The HTTP Logging API card displays working endpoint URLs that include the resolved canister ID (e.g., `https://<canisterId>.raw.icp0.io/...`)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/DEPLOY_FRONTEND_ONLY.md",
-          "operation": "create",
-          "description": "Add a concise frontend-only clean rebuild/redeploy checklist (including cache-busting guidance and verification steps in an incognito session) to ensure the updated JS bundle containing the runtime config loader is deployed and production initializes using `/env.json`."
-        },
-        {
-          "path": "frontend/index.html",
-          "operation": "modify",
-          "description": "Add a small, non-invasive deploy verification marker (e.g., a build/version comment or meta tag) to help confirm the latest frontend bundle is being served after redeploy, without changing authentication behavior or relying on build-time env injection."
+          "description": "Add a derived `backendStatusUrl` (`https://${backendCanisterId}.raw.icp0.io/status`) and render a new endpoint row titled like the existing ones, with the same copy-to-clipboard behavior (including the temporary 'Copied!' state) and an open-in-new-tab external link. Use the existing shadcn/ui-based components already imported in this file (Card, Button, Alert, etc.) to keep controls consistent; verify the component's usage instructions before implementing."
         }
       ]
     }

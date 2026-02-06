@@ -2,7 +2,10 @@ import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Time "mo:core/Time";
 import Runtime "mo:core/Runtime";
+import Migration "migration";
+import Array "mo:core/Array";
 
+(with migration = Migration.run)
 actor {
   type Reading = {
     id : Nat;
